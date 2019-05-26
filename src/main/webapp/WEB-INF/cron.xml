@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+    <cron>
+        <url>/cron/update_list</url>
+        <description>bot reaction</description>
+        <schedule>every 15 minutes</schedule>
+        <timezone>Asia/Tokyo</timezone>
+    </cron>
+</cronentries>
