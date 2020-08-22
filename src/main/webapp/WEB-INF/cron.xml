@@ -3,7 +3,7 @@
     <cron>
         <url>/cron/update_list</url>
         <description>bot reaction</description>
-        <schedule>every 15 minutes</schedule>
+        <schedule>every 30 minutes</schedule>
         <timezone>Asia/Tokyo</timezone>
     </cron>
 </cronentries>

@@ -12,19 +12,17 @@ public class Repository implements AutoCloseable {
     /**
      * Twitter API - Access Token
      */
-    private static final String mizo0203 = "212164063-ZI9hEMxxvWpOmLw0FuQKIevMUIGVdR4OhYDTlNWO";
+    private static final String mizo0203 = "212164063-l9iyhiLnZQ8aQYKry2Yt1zWIke5BItxIQqydX2GV";
 
     private final OfyManager mOfy = new OfyManager();
 
-    /* package */ Twitter getVerifiedTwitter() throws TwitterException {
+    /* package */ Twitter getTwitter() {
         TwitterAccessToken twitterAccessToken = mOfy.load(TwitterAccessToken.class, mizo0203);
         if (twitterAccessToken == null) {
             twitterAccessToken = new TwitterAccessToken(mizo0203);
             mOfy.save(twitterAccessToken);
         }
-        Twitter twitter = twitterAccessToken.getTwitter();
-        twitter.verifyCredentials();
-        return twitter;
+        return twitterAccessToken.getTwitter();
     }
 
     @SuppressWarnings("unused")
@@ -44,6 +42,7 @@ public class Repository implements AutoCloseable {
 
     private Set<Long> userIds(Twitter twitter) {
         Set<Long> set = new HashSet<>();
+        StringBuilder dmStringBuilder = new StringBuilder();
 
         List<Long> userList = new ArrayList<>();
         try {
@@ -79,8 +78,12 @@ public class Repository implements AutoCloseable {
             try {
                 ResponseList<Status> statusResponseList = twitter.getUserTimeline(candidateIdList.get(j), new Paging(1, 200));
                 for (Status status : statusResponseList) {
+                    if (status.isRetweet()) {
+                        continue;
+                    }
                     int score = calc(status.getUser().getDescription(), status.getUser().getLocation(), status.getText());
                     if (score >= 5) {
+                        dmStringBuilder.append("score: ").append(score).append(" https://twitter.com/").append(status.getUser().getScreenName()).append("/status/").append(status.getId());
                         LOG.info("score: " + score + " " + "user: " + status.getUser().getName() + " @" + status.getUser().getScreenName() + " (" + status.getUser().getId() + ")\n"
                                 + "getDescription(): " + status.getUser().getDescription() + "\n"
                                 + "getLocation(): " + status.getUser().getLocation() + "\n"
@@ -98,6 +101,9 @@ public class Repository implements AutoCloseable {
                     LOG.warning(e.getMessage());
                 }
             }
+        }
+        if (dmStringBuilder.length() > 0) {
+            new MailManager().sendSimpleMail(dmStringBuilder.toString(), "mizoguchi.satoki@mizo0203.com");
         }
 
         return set;

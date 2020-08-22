@@ -16,7 +16,7 @@ public class UpdateUserListMembersServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try (Repository repository = new Repository()) {
-            Twitter twitter = repository.getVerifiedTwitter();
+            Twitter twitter = repository.getTwitter();
             repository.updateUserListMembers(twitter);
         } catch (TwitterException e) {
             throw new RuntimeException("fail", e);
